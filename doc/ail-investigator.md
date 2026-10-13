@@ -43,11 +43,11 @@ ssh -N -L 7000:127.0.0.1:7000 analyst@VM_ADDRESS
 
 Verify that AIL is actually listening only where intended and that the TLS certificate validates for the name in --ail-url. For a private certificate authority, provide its PEM certificate with --ca-cert. Do not disable TLS verification to make an import work.
 
+Set AIL_API_KEY through a secret manager or a protected interactive prompt, without typing the key into a command that shell history records. Then run:
+
 ~~~sh
-export AIL_API_KEY='paste-key-into-private-shell-only'
 python3 ailkit.py import-text ./case-001 SHA256_FROM_ADD_FILE --ail-url https://localhost:7000 --ca-cert ./trusted-ca.pem
 python3 ailkit.py status ./case-001 UUID_FROM_IMPORT --ail-url https://localhost:7000 --ca-cert ./trusted-ca.pem
-unset AIL_API_KEY
 ~~~
 
 The tool accepts HTTPS loopback origins only, disables HTTP proxy use, rejects redirects, verifies TLS certificates, has a 15-second request timeout, and limits API responses to 64 KiB. It does not display the API key. This is a narrow client guard, not a proof that the VM, AIL, Tor, or its dependencies are secure. A self-signed server certificate may need to be reissued with a localhost subject alternative name before a TLS-valid tunnel can work.

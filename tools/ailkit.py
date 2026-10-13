@@ -7,7 +7,6 @@ import ipaddress
 import json
 import os
 from pathlib import Path
-import shutil
 import ssl
 import sys
 import tempfile
@@ -83,7 +82,15 @@ def add_file(args):
     temp = Path(temp_name)
     try:
         with os.fdopen(fd, "wb") as out, source.open("rb") as stream:
-            shutil.copyfileobj(stream, out, length=1024 * 1024)
+            copied = 0
+            while True:
+                block = stream.read(1024 * 1024)
+                if not block:
+                    break
+                copied += len(block)
+                if copied > MAX_FILE:
+                    die("Input grew beyond 50 MiB while copying")
+                out.write(block)
             out.flush()
             os.fsync(out.fileno())
         if temp.stat().st_size > MAX_FILE:
